@@ -25,8 +25,8 @@ exports.createPages = ({ graphql, actions }) => {
   const { createPage } = actions;
 
   return new Promise((resolve, reject) => {
-    const postPage = path.resolve('src/templates/post.js');
-    const categoryPage = path.resolve('src/templates/category.js');
+    const postPage = require.resolve('./src/templates/post.js');
+    const categoryPage = require.resolve('./src/templates/category.js');
     resolve(
       graphql(`
         {
