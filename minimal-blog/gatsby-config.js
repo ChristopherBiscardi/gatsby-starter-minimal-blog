@@ -1,4 +1,5 @@
 const config = require('./config/SiteConfig');
+const path = require('path')
 
 const pathPrefix = config.pathPrefix === '/' ? '' : config.pathPrefix;
 
@@ -36,7 +37,7 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-typography',
       options: {
-        pathToConfigModule: 'src/utils/typography.js',
+        pathToConfigModule: path.relative(path.resolve('.'), path.resolve(__dirname, 'src/utils/typography.js')),
       },
     },
     'gatsby-plugin-catch-links',
