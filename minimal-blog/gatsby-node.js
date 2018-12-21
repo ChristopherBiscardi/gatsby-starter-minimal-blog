@@ -1,5 +1,7 @@
 const path = require('path');
 const _ = require('lodash');
+const fs = require('fs');
+const mkdirp = require('mkdirp')
 
 exports.onCreateNode = ({ node, actions }) => {
   const { createNodeField } = actions;
@@ -98,3 +100,15 @@ exports.onCreateWebpackConfig = ({ stage, actions }) => {
     },
   });
 };
+
+exports.onPreBootstrap = ({ store }) => {
+  const faviconPath = 'src/favicon.png';
+  const { program } = store.getState()
+  const maybeUserFavicon = `${program.directory}/${faviconPath}`
+
+  if (!fs.existsSync(maybeUserFavicon)) {
+    // make sure src directory exists
+    mkdirp.sync(`${program.directory}/src`);
+    fs.copyFileSync(`${__dirname}/${faviconPath}`, maybeUserFavicon)
+  }
+}
