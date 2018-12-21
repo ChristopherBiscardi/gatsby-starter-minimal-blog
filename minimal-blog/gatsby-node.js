@@ -29,6 +29,7 @@ exports.createPages = ({ graphql, actions }) => {
   return new Promise((resolve, reject) => {
     const postPage = require.resolve('./src/templates/post.js');
     const categoryPage = require.resolve('./src/templates/category.js');
+
     resolve(
       graphql(`
         {
@@ -93,13 +94,25 @@ exports.createPages = ({ graphql, actions }) => {
   });
 };
 
-exports.onCreateWebpackConfig = ({ stage, actions }) => {
+exports.onCreateWebpackConfig = ({ stage, actions, loaders }) => {
   actions.setWebpackConfig({
     resolve: {
       modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     },
   });
-};
+
+  actions.setWebpackConfig({
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          include: path.dirname(require.resolve('gatsby-theme-minimal-blog')),
+          use: [loaders.js()],
+        },
+      ],
+    },
+  })
+}
 
 exports.onPreBootstrap = ({ store }) => {
   const faviconPath = 'src/favicon.png';
