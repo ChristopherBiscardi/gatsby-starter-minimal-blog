@@ -1,5 +1,7 @@
 const path = require('path');
 const _ = require('lodash');
+const fs = require('fs');
+const mkdirp = require('mkdirp')
 
 exports.onCreateNode = ({ node, actions }) => {
   const { createNodeField } = actions;
@@ -25,8 +27,9 @@ exports.createPages = ({ graphql, actions }) => {
   const { createPage } = actions;
 
   return new Promise((resolve, reject) => {
-    const postPage = path.resolve('src/templates/post.js');
-    const categoryPage = path.resolve('src/templates/category.js');
+    const postPage = require.resolve('./src/templates/post.js');
+    const categoryPage = require.resolve('./src/templates/category.js');
+
     resolve(
       graphql(`
         {
@@ -91,10 +94,34 @@ exports.createPages = ({ graphql, actions }) => {
   });
 };
 
-exports.onCreateWebpackConfig = ({ stage, actions }) => {
+exports.onCreateWebpackConfig = ({ stage, actions, loaders }) => {
   actions.setWebpackConfig({
     resolve: {
       modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     },
   });
-};
+
+  actions.setWebpackConfig({
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          include: path.dirname(require.resolve('gatsby-theme-minimal-blog')),
+          use: [loaders.js()],
+        },
+      ],
+    },
+  })
+}
+
+exports.onPreBootstrap = ({ store }) => {
+  const faviconPath = 'src/favicon.png';
+  const { program } = store.getState()
+  const maybeUserFavicon = `${program.directory}/${faviconPath}`
+
+  if (!fs.existsSync(maybeUserFavicon)) {
+    // make sure src directory exists
+    mkdirp.sync(`${program.directory}/src`);
+    fs.copyFileSync(`${__dirname}/${faviconPath}`, maybeUserFavicon)
+  }
+}
